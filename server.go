@@ -24,8 +24,11 @@ func server(cmd *lib.Command, args []string)  int{
 		return 1
 	}
 
+	switch args[0] {
+	case "start":
+		lib.ConnectEtcd("leftGetId", Cfg.EtcdAddr, Cfg.MyAddr)
 
-
+	}
 
 	return  0
 }
