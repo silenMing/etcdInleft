@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"strings"
 	"net"
 	"log"
@@ -57,7 +58,7 @@ func ConnectEtcd(name, etcd_addr, myaddr string) {
 		global_config: make(map[string]string),
 	}
 	Cfg.connect(etcd_addr)
-	client_init()
+	//client_init()
 }
 
 func (e *EtcdConfig) OnConfigSet(key string, handler func()) {
@@ -99,7 +100,7 @@ func (e *EtcdConfig) start_heartbeat() {
 		time.Sleep(5 * time.Second)
 		kAPI := etcd.NewKeysAPI(e.Client)
 		for _, addr := range e.MyAddrs {
-			_, err := kAPI.Set(context.Background(), "/luban/nodes/"+e.Name+"/"+addr, "ok", &etcd.SetOptions{
+			_, err := kAPI.Set(context.Background(), "/etcdInLeft/nodes/"+e.Name+"/"+addr, "ok", &etcd.SetOptions{
 				TTL: time.Second * 10,
 			})
 
@@ -115,8 +116,8 @@ func (e *EtcdConfig) load_env() (err error) {
 	if err != nil {
 		panic(err)
 	}
-	e.config, _ = e.LoadConfig(kAPI, "/luban/config/"+e.Name)
-	e.global_config, _ = e.LoadConfig(kAPI, "/luban/config/global")
+	e.config, _ = e.LoadConfig(kAPI, "/etcdInLeft/config/"+e.Name)
+	e.global_config, _ = e.LoadConfig(kAPI, "/etcdInLeft/config/global")
 	return nil
 }
 
@@ -134,4 +135,3 @@ func (e *EtcdConfig) LoadConfig(kAPI etcd.KeysAPI, path string) (cfg map[string]
 	}
 	return
 }
-
