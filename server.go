@@ -6,7 +6,7 @@ import (
 	"etcdInLeft/lib"
 )
 
-var cmdServer = &lib.Command{
+var CmdServer = &lib.Command{
 	UsageLine: "server",
 	Short:     "服务管理",
 	Long: `start  启动服务`,
@@ -14,7 +14,7 @@ var cmdServer = &lib.Command{
 
 
 func init() {
-	cmdServer.Run = server
+	CmdServer.Run = server
 }
 
 func server(cmd *lib.Command, args []string)  int{
