@@ -58,7 +58,7 @@ func ConnectEtcd(name, etcd_addr, myaddr string) {
 		global_config: make(map[string]string),
 	}
 	Cfg.connect(etcd_addr)
-	//client_init()
+	client_init()
 }
 
 func (e *EtcdConfig) OnConfigSet(key string, handler func()) {
