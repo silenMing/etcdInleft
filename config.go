@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"encoding/json"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 type Config struct {
@@ -16,15 +14,10 @@ type Config struct {
 var Cfg *Config
 
 
-var configFile string
+const configFile = "config.json"
 
 func init() {
 	Cfg = &Config{}
-	path, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-
-	configFile := path
-	configFile += "/config.json"
-
 	fmt.Printf("file path %s",configFile)
 	buf, err := ioutil.ReadFile(configFile)
 	if err != nil {
