@@ -3,7 +3,7 @@ package main
 import (
 	"runtime"
 	"log"
-	"etcdInLeft/lib"
+	"github.com/silenMing/etcdInleft/lib"
 )
 
 var CmdServer = &lib.Command{

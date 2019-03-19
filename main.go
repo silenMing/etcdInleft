@@ -1,7 +1,7 @@
 package main
 
 import (
-	"etcdInLeft/lib"
+	"github.com/silenMing/etcdInleft/lib"
 )
 
 func main() {
