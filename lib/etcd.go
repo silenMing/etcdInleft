@@ -12,22 +12,22 @@ import (
 type EtcdConfig struct {
 	Client        etcd.Client
 	Name          string
-	MyAddrs       []string
+	MyAddress       []string
 	config        map[string]string
-	global_config map[string]string
+	globalConfig map[string]string
 }
 
 var Cfg *EtcdConfig
 
 func ConnectEtcd(name, etcd_addr, myaddr string) {
-	addr_splits := strings.Split(myaddr, ":")
+	addressSplits := strings.Split(myaddr, ":")
 	my_addrs := []string{}
-	if addr_splits[0] == "0.0.0.0" {
-		ifaces, err := net.Interfaces()
+	if addressSplits[0] == "0.0.0.0" {
+		iFaces, err := net.Interfaces()
 		if err != nil {
 			log.Panic(err)
 		}
-		for _, i := range ifaces {
+		for _, i := range iFaces {
 			addrs, err := i.Addrs()
 			if err != nil {
 				log.Panic(err)
@@ -42,7 +42,7 @@ func ConnectEtcd(name, etcd_addr, myaddr string) {
 						ip = v.IP.String()
 					}
 					if ip != "127.0.0.1" && strings.Contains(ip, ".") && (len(ip) < 8 || ip[0:8] != "169.254.") {
-						my_addrs = append(my_addrs, ip+":"+addr_splits[1])
+						my_addrs = append(my_addrs, ip+":"+addressSplits[1])
 					}
 				}()
 			}
@@ -53,12 +53,13 @@ func ConnectEtcd(name, etcd_addr, myaddr string) {
 
 	Cfg = &EtcdConfig{
 		Name:          name,
-		MyAddrs:       my_addrs,
+		MyAddress:       my_addrs,
 		config:        make(map[string]string),
-		global_config: make(map[string]string),
+		globalConfig: make(map[string]string),
 	}
+	log.Println("address \n",etcd_addr)
 	Cfg.connect(etcd_addr)
-	client_init()
+	clientInit()
 }
 
 func (e *EtcdConfig) OnConfigSet(key string, handler func()) {
@@ -72,7 +73,7 @@ func (e *EtcdConfig) Get(key string) string {
 }
 
 func (e *EtcdConfig) GetGlobal(key string) string {
-	return e.global_config[key]
+	return e.globalConfig[key]
 }
 
 func (e *EtcdConfig) KApi() etcd.KeysAPI {
@@ -89,17 +90,17 @@ func (e *EtcdConfig) connect(etcd_addr string) (err error) {
 	if err != nil {
 		panic(err)
 	}
-
+	log.Println("connect etcd succ")
 	err = e.load_env()
-	go e.start_heartbeat()
+	go e.startHeartbeat()
 	return
 }
 
-func (e *EtcdConfig) start_heartbeat() {
+func (e *EtcdConfig) startHeartbeat() {
 	for {
 		time.Sleep(5 * time.Second)
 		kAPI := etcd.NewKeysAPI(e.Client)
-		for _, addr := range e.MyAddrs {
+		for _, addr := range e.MyAddress {
 			_, err := kAPI.Set(context.Background(), "/etcdInLeft/nodes/"+e.Name+"/"+addr, "ok", &etcd.SetOptions{
 				TTL: time.Second * 10,
 			})
@@ -117,7 +118,7 @@ func (e *EtcdConfig) load_env() (err error) {
 		panic(err)
 	}
 	e.config, _ = e.LoadConfig(kAPI, "/etcdInLeft/config/"+e.Name)
-	e.global_config, _ = e.LoadConfig(kAPI, "/etcdInLeft/config/global")
+	e.globalConfig, _ = e.LoadConfig(kAPI, "/etcdInLeft/config/global")
 	return nil
 }
 

@@ -5,9 +5,9 @@ import (
 )
 
 func main() {
-	cmd_runner := &lib.Commands{
+	cmdRunner := &lib.Commands{
 		CmdServer,
 	}
 
-	cmd_runner.Run()
+	cmdRunner.Run()
 }

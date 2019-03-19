@@ -11,22 +11,22 @@ import (
 	"time"
 )
 
-var service_map *map[string]backend
+var serviceMap *map[string]backend
 var lk *sync.RWMutex
 
 func init() {
 	lk = &sync.RWMutex{}
 }
 
-func client_init() {
+func clientInit() {
 	go get_service_map()
 }
 
 func Client(sv string) *rpc.TCPClient {
 	lk.RLock()
 	defer lk.RUnlock()
-	if service_map != nil {
-		if backend, ok := (*service_map)[sv]; ok {
+	if serviceMap != nil {
+		if backend, ok := (*serviceMap)[sv]; ok {
 			return backend.Client
 		}
 	}
@@ -84,9 +84,9 @@ func get_service_map() {
 					backend := new_service_map[srv_name]
 					backend.Nodes = nodes
 
-					if service_map == nil {
+					if serviceMap == nil {
 						backend.Client = rpc.NewTCPClient(backend.Nodes...)
-					} else if c, ok := (*service_map)[srv_name]; ok {
+					} else if c, ok := (*serviceMap)[srv_name]; ok {
 						backend.Client = c.Client
 						if testEq(c.Nodes, backend.Nodes) == false {
 							backend.Client.SetURIList(backend.Nodes)
@@ -102,7 +102,7 @@ func get_service_map() {
 			lk.Lock()
 			defer lk.Unlock()
 
-			service_map = &new_service_map
+			serviceMap = &new_service_map
 		}()
 		time.Sleep(time.Second)
 	}
